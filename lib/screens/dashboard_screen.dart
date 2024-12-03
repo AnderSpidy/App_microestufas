@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../../widgets/status_card.dart';
 import 'detail_screen.dart';
 import 'settings_screen.dart';
 import '../../services/mqtt_manager.dart';
+import 'ideal_config_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -14,6 +16,10 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final MqttManager mqttManager = MqttManager();
+
+  final String irrigationTopic = 'estufa/controle/irrigacao';
+  final String fanTopic = 'estufa/controle/exaustor';
+  final String lightTopic = 'estufa/controle/iluminacao';
 
   String temperature = '0°C';
   String humidityAir = '0%';
@@ -27,48 +33,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> connectMqtt() async {
     await mqttManager.connect();
-    mqttManager.subscribe('sensor/temperatura');
-    mqttManager.subscribe('sensor/umidade_ar');
-    mqttManager.subscribe('sensor/umidade_solo');
+    mqttManager.subscribe('estufa/sensores'); // Ouvir o tópico correto
 
-    // Aqui você deve adicionar um listener para os tópicos
-
-    mqttManager.client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+    mqttManager.client.updates!
+        .listen((List<MqttReceivedMessage<MqttMessage>> c) {
       final MqttReceivedMessage<MqttMessage> message = c[0];
-      final String topic = message.topic;
       final payload = message.payload as MqttPublishMessage;
 
-      // Agora, você pode acessar a mensagem da seguinte forma
-      final String messageContent = MqttPublishPayload.bytesToStringAsString(payload.payload.message);
+      // Mensagem recebida como string JSON
+      final String messageContent =
+          MqttPublishPayload.bytesToStringAsString(payload.payload.message);
 
-      // Verifique qual tópico recebeu e atualize os valores
-      switch (topic) {
-        case 'sensor/temperatura':
-          setState(() {
-            temperature = messageContent; // Assumindo que o valor recebido é uma string
-          });
-          break;
-        case 'sensor/umidade_ar':
-          setState(() {
-            humidityAir = messageContent;
-          });
-          break;
-        case 'sensor/umidade_solo':
-          setState(() {
-            soilMoisture = messageContent;
-          });
-          break;
+      try {
+        // Decodificar o JSON
+        final Map<String, dynamic> data = jsonDecode(messageContent);
+
+        // Atualizar os estados com os valores recebidos
+        setState(() {
+          temperature = "${data['temperatura']}°C";
+          humidityAir = "${data['umidade_ar']}%";
+          soilMoisture = "${data['umidade_solo']}%";
+        });
+      } catch (e) {
+        print('Erro ao processar mensagem MQTT: $e');
       }
     });
-
   }
+
   @override
   void dispose() {
     mqttManager.disconnect();
     super.dispose();
   }
 
-  // Variáveis de estado para cada controle
   bool irrigacaoLigada = false;
   bool exaustorLigado = false;
   bool iluminacaoLigada = false;
@@ -86,6 +83,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.tune), // Ícone para configurações ideais
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      IdealConfigScreen(mqttManager: mqttManager),
+                ),
               );
             },
           ),
@@ -153,7 +162,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
             const SizedBox(height: 20),
-            // Switch para Irrigação
             SwitchListTile(
               title: const Text('Irrigação'),
               value: irrigacaoLigada,
@@ -161,14 +169,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 setState(() {
                   irrigacaoLigada = value;
                 });
-                // Adicione a lógica para ativar/desativar a irrigação via MQTT aqui
+                // Lógica para ativar/desativar a irrigação via MQTT
+                final String message = value ? 'ligar' : 'desligar';
+                mqttManager.publish(irrigationTopic, message);
               },
               secondary: Icon(
                 irrigacaoLigada ? Icons.water : Icons.water_outlined,
                 color: irrigacaoLigada ? Colors.blue : Colors.grey,
               ),
             ),
-            // Switch para Exaustor
             SwitchListTile(
               title: const Text('Exaustor'),
               value: exaustorLigado,
@@ -176,14 +185,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 setState(() {
                   exaustorLigado = value;
                 });
-                // Adicione a lógica para ativar/desativar o exaustor via MQTT aqui
+                final String message = value ? 'ligar' : 'desligar';
+                mqttManager.publish(fanTopic, message);
               },
               secondary: Icon(
                 exaustorLigado ? Icons.air : Icons.air_outlined,
                 color: exaustorLigado ? Colors.green : Colors.grey,
               ),
             ),
-            // Switch para Iluminação
             SwitchListTile(
               title: const Text('Iluminação'),
               value: iluminacaoLigada,
@@ -191,7 +200,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 setState(() {
                   iluminacaoLigada = value;
                 });
-                // Adicione a lógica para ativar/desativar a iluminação via MQTT aqui
+                final String message = value ? 'ligar' : 'desligar';
+                mqttManager.publish(lightTopic, message);
+                // Lógica para ativar/desativar a iluminação via MQTT
               },
               secondary: Icon(
                 iluminacaoLigada ? Icons.lightbulb : Icons.lightbulb_outline,

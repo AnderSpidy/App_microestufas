@@ -3,8 +3,8 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 
 
 class MqttManager {
-  final String broker = ''; // URL ou IP do seu broker MQTT
-  final String clientId = 'flutter_client';
+  final String broker = '192.168.1.100'; // URL ou IP do seu broker MQTT
+  final String clientId = 'AndroidTest01';
   final String username = ''; // Insira o usuário do broker MQTT se necessário
   final String password = ''; // Insira a senha do broker MQTT se necessário
   late MqttServerClient client;
@@ -56,5 +56,11 @@ class MqttManager {
   // Método para se inscrever em um tópico
   void subscribe(String topic) {
     client.subscribe(topic, MqttQos.atLeastOnce);
+  }
+  //Método para publicar em um tópico
+  void publish(String topic, String message) {
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(message);
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
 }
