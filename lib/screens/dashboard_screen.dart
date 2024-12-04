@@ -20,6 +20,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final String irrigationTopic = 'estufa/controle/irrigacao';
   final String fanTopic = 'estufa/controle/exaustor';
   final String lightTopic = 'estufa/controle/iluminacao';
+  final String ventilatorTopic = 'estufa/controle/ventilador';
 
   String temperature = '0°C';
   String humidityAir = '0%';
@@ -28,7 +29,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    connectMqtt();
   }
 
   Future<void> connectMqtt() async {
@@ -68,6 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   bool irrigacaoLigada = false;
   bool exaustorLigado = false;
+  bool ventilatorLigado = false;
   bool iluminacaoLigada = false;
 
   @override
@@ -190,9 +191,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
               secondary: Icon(
                 exaustorLigado ? Icons.air : Icons.air_outlined,
-                color: exaustorLigado ? Colors.green : Colors.grey,
+                color: exaustorLigado ? Colors.deepOrangeAccent : Colors.grey,
               ),
             ),
+            SwitchListTile(
+              title: const Text('Ventilador'),
+              value: ventilatorLigado,
+              onChanged: (bool value) {
+                setState(() {
+                  ventilatorLigado = value;
+                });
+                final String message = value ? 'ligar' : 'desligar';
+                mqttManager.publish(ventilatorTopic, message); // Substitua por seu tópico MQTT correto
+              },
+              secondary: Icon(
+                ventilatorLigado ? Icons.wind_power : Icons.wind_power_outlined,
+                color: ventilatorLigado ? Colors.cyan : Colors.grey,
+              ),
+            ),
+
             SwitchListTile(
               title: const Text('Iluminação'),
               value: iluminacaoLigada,
