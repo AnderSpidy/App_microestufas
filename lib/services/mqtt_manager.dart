@@ -3,7 +3,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 
 
 class MqttManager {
-  final String broker = '10.1.3.85'; // URL ou IP do seu broker MQTT
+  final String broker = '192.168.133.124'; // URL ou IP do seu broker MQTT
   final String clientId = 'AndroidTest01';
   final String username = ''; // Insira o usuário do broker MQTT se necessário
   final String password = ''; // Insira a senha do broker MQTT se necessário
@@ -16,6 +16,7 @@ class MqttManager {
     client.onDisconnected = onDisconnected;
     client.onConnected = onConnected;
     client.onSubscribed = onSubscribed;
+    client.logging(on: true);
   }
 
   // Método para conectar ao broker
@@ -30,10 +31,12 @@ class MqttManager {
 
     try {
       await client.connect(username, password);
+      print('Conexão bem-sucedida');
     } catch (e) {
       print('Erro ao conectar: $e');
       disconnect();
     }
+
   }
 
   void disconnect() {
@@ -55,12 +58,23 @@ class MqttManager {
 
   // Método para se inscrever em um tópico
   void subscribe(String topic) {
-    client.subscribe(topic, MqttQos.atLeastOnce);
-  }
+    try {
+      client.subscribe(topic, MqttQos.atLeastOnce);
+      print('Tentando se inscrever no tópico: $topic');
+    } catch (e) {
+      print('Erro ao tentar se inscrever no tópico: $e');
+    }
+    }
+
   //Método para publicar em um tópico
   void publish(String topic, String message) {
+    try {
     final builder = MqttClientPayloadBuilder();
     builder.addString(message);
     client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
+    print('Mensagem publicada: $message no tópico: $topic');
+    }catch(e){
+    print('Erro ao publicar mensagem: $e');
+    }
   }
 }

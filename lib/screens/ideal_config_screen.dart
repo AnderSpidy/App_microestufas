@@ -13,20 +13,18 @@ class IdealConfigScreen extends StatefulWidget {
 
 class _IdealConfigScreenState extends State<IdealConfigScreen> {
   // Variáveis de controle
-  double temperaturaIdeal = 25.0;
-  double umidadeArIdeal = 50.0;
-  double umidadeSoloIdeal = 40.0;
-
-  TimeOfDay horarioInicioIluminacao = const TimeOfDay(hour: 6, minute: 0);
-  TimeOfDay horarioFimIluminacao = const TimeOfDay(hour: 18, minute: 0);
-
-  Color corIluminacao = Colors.white;
-  double intensidadeIluminacao = 50.0;
+  double temperaturaIdeal = 15;
+  double umidadeArIdeal = 20;
+  double umidadeSoloIdeal = 10;
+  TimeOfDay horarioInicioIluminacao = const TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay horarioFimIluminacao = const TimeOfDay(hour: 0, minute: 0);
+  Color corIluminacao = Colors.black;
+  double intensidadeIluminacao = 0;
 
   // Componentes RGB
-  double red = 255;
-  double green = 255;
-  double blue = 255;
+  double red = 0;
+  double green = 0;
+  double blue = 0;
 
   // Métodos auxiliares para horário
   Future<void> _selecionarHorarioInicio(BuildContext context) async {
@@ -58,51 +56,6 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
       corIluminacao = Color.fromRGBO(red.toInt(), green.toInt(), blue.toInt(), 1);
     });
   }
-// Salvar configurações
- /* Future<void> _saveToLocalStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('corR', corIluminacao.red);
-    prefs.setInt('corG', corIluminacao.green);
-    prefs.setInt('corB', corIluminacao.blue);
-    prefs.setDouble('temperaturaIdeal', temperaturaIdeal);
-    prefs.setDouble('umidadeArIdeal', umidadeArIdeal);
-    prefs.setDouble('umidadeSoloIdeal', umidadeSoloIdeal);
-    prefs.setDouble('intensidadeIluminacao', intensidadeIluminacao);
-    prefs.setString('horarioInicioIluminacao',
-        '${horarioInicioIluminacao.hour}:${horarioInicioIluminacao.minute}');
-    prefs.setString('horarioFimIluminacao',
-        '${horarioFimIluminacao.hour}:${horarioFimIluminacao.minute}');
-  }
-
-// Carregar configurações
-  Future<void> _loadFromLocalStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      corIluminacao = Color.fromARGB(
-        255,
-        prefs.getInt('corR') ?? 255,
-        prefs.getInt('corG') ?? 255,
-        prefs.getInt('corB') ?? 255,
-      );
-      temperaturaIdeal = prefs.getDouble('temperaturaIdeal') ?? 25.0;
-      umidadeArIdeal = prefs.getDouble('umidadeArIdeal') ?? 50.0;
-      umidadeSoloIdeal = prefs.getDouble('umidadeSoloIdeal') ?? 40.0;
-      intensidadeIluminacao =
-          prefs.getDouble('intensidadeIluminacao') ?? 50.0;
-      horarioInicioIluminacao = TimeOfDay(
-        hour: int.parse(
-            (prefs.getString('horarioInicioIluminacao')?.split(':')[0] ?? '6')),
-        minute: int.parse(
-            (prefs.getString('horarioInicioIluminacao')?.split(':')[1] ?? '0')),
-      );
-      horarioFimIluminacao = TimeOfDay(
-        hour: int.parse(
-            (prefs.getString('horarioFimIluminacao')?.split(':')[0] ?? '18')),
-        minute: int.parse(
-            (prefs.getString('horarioFimIluminacao')?.split(':')[1] ?? '0')),
-      );
-    });
-  }*/
 
   // Método para salvar configurações
   void _saveConfigurations() {
@@ -124,7 +77,6 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Configurações enviadas com sucesso!")),
     );
-    //_saveToLocalStorage();
   }
 
   @override
