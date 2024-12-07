@@ -1,11 +1,13 @@
 import 'dart:convert';
+import 'package:estufas_automatizadas/widgets/save_preset.dart';
 import 'package:flutter/material.dart';
 import '../../services/mqtt_manager.dart';
 
 class IdealConfigScreen extends StatefulWidget {
   final MqttManager mqttManager;
 
-  const IdealConfigScreen({Key? key, required this.mqttManager}) : super(key: key);
+  const IdealConfigScreen({Key? key, required this.mqttManager})
+      : super(key: key);
 
   @override
   _IdealConfigScreenState createState() => _IdealConfigScreenState();
@@ -53,7 +55,8 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
 
   void _atualizarCorIluminacao() {
     setState(() {
-      corIluminacao = Color.fromRGBO(red.toInt(), green.toInt(), blue.toInt(), 1);
+      corIluminacao =
+          Color.fromRGBO(red.toInt(), green.toInt(), blue.toInt(), 1);
     });
   }
 
@@ -63,8 +66,10 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
       'temperaturaIdeal': temperaturaIdeal,
       'umidadeArIdeal': umidadeArIdeal,
       'umidadeSoloIdeal': umidadeSoloIdeal,
-      'horarioInicioIluminacao': '${horarioInicioIluminacao.hour}:${horarioInicioIluminacao.minute}',
-      'horarioFimIluminacao': '${horarioFimIluminacao.hour}:${horarioFimIluminacao.minute}',
+      'horarioInicioIluminacao':
+          '${horarioInicioIluminacao.hour}:${horarioInicioIluminacao.minute}',
+      'horarioFimIluminacao':
+          '${horarioFimIluminacao.hour}:${horarioFimIluminacao.minute}',
       'corIluminacaoR': '#${corIluminacao.red.toString()}',
       'corIluminacaoG': '#${corIluminacao.green.toString()}',
       'corIluminacaoB': '#${corIluminacao.blue.toString()}',
@@ -76,6 +81,31 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Configurações enviadas com sucesso!")),
+    );
+  }
+
+  // Método para exibir o PresetDialog
+  void _callPresetDialog(BuildContext context) {
+    final configData = {
+      'temperaturaIdeal': temperaturaIdeal,
+      'umidadeArIdeal': umidadeArIdeal,
+      'umidadeSoloIdeal': umidadeSoloIdeal,
+      'horarioInicioIluminacao':
+          '${horarioInicioIluminacao.hour}:${horarioInicioIluminacao.minute}',
+      'horarioFimIluminacao':
+          '${horarioFimIluminacao.hour}:${horarioFimIluminacao.minute}',
+      'corIluminacaoR': '#${corIluminacao.red.toString()}',
+      'corIluminacaoG': '#${corIluminacao.green.toString()}',
+      'corIluminacaoB': '#${corIluminacao.blue.toString()}',
+      'intensidadeIluminacao': intensidadeIluminacao.toInt(),
+    };
+
+    // Exibe o PresetDialog passando os dados de configuração
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PresetDialog(configData: configData);
+      },
     );
   }
 
@@ -123,7 +153,8 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
             const Divider(),
 
             // Configuração de Umidade do Solo
-            Text('Umidade do Solo Ideal: ${umidadeSoloIdeal.toStringAsFixed(1)}%'),
+            Text(
+                'Umidade do Solo Ideal: ${umidadeSoloIdeal.toStringAsFixed(1)}%'),
             Slider(
               value: umidadeSoloIdeal,
               min: 10,
@@ -141,13 +172,13 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
             // Configuração de Horário de Iluminação
             ListTile(
               title: const Text('Horário Início Iluminação'),
-              subtitle: Text('${horarioInicioIluminacao.format(context)}'),
+              subtitle: Text(horarioInicioIluminacao.format(context)),
               trailing: const Icon(Icons.timer),
               onTap: () => _selecionarHorarioInicio(context),
             ),
             ListTile(
               title: const Text('Horário Fim Iluminação'),
-              subtitle: Text('${horarioFimIluminacao.format(context)}'),
+              subtitle: Text(horarioFimIluminacao.format(context)),
               trailing: const Icon(Icons.timer_off),
               onTap: () => _selecionarHorarioFim(context),
             ),
@@ -212,7 +243,8 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
             const Divider(),
 
             // Configuração de Intensidade da Iluminação
-            Text('Intensidade da Iluminação: ${intensidadeIluminacao.toStringAsFixed(0)}%'),
+            Text(
+                'Intensidade da Iluminação: ${intensidadeIluminacao.toStringAsFixed(0)}%'),
             Slider(
               value: intensidadeIluminacao,
               min: 0,
@@ -230,6 +262,11 @@ class _IdealConfigScreenState extends State<IdealConfigScreen> {
             ElevatedButton(
               onPressed: _saveConfigurations,
               child: const Text("Salvar Configurações"),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  _callPresetDialog(context), // Chama o PresetDialog
+              child: const Text("Salvar como favorito"),
             ),
           ],
         ),

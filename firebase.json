@@ -1,0 +1,22 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "estufa-app-ifsc",
+                    "appId": "1:597960561676:android:3fdc8ca8474ddd6f274a29",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "estufa-app-ifsc",
+                    "configurations": {
+                        "android": "1:597960561676:android:3fdc8ca8474ddd6f274a29",
+                        "ios": "1:597960561676:ios:23fa35a02135cf91274a29"
+                    }
+                }
+            }
+        }
+    }
+}
